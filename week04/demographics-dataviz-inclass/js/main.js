@@ -84,13 +84,18 @@ const joinedData = {
 };
 window.joinedData = joinedData;
 
+const raceLabels = [
+  'White',
+  'Black or African American',
+  'American Indian and Alaska Native',
+  'Asian',
+  'Native Hawaiian and Other Pacific Islander',
+  'Some Other Race',
+  'Two or More Races',
+];
+const raceColors = d3.schemeCategory10;
 
-function calcFeatureStyle(blockgroup) {
-  const totalPop = blockgroup.properties.demographics[0];
-  const colors = d3.schemeCategory10;
-  // const allTotalPops = joinedData.features.map((f) => parseInt(f.properties.demographics[0]));
-  // const maxPop = Math.max(...allTotalPops);
-
+function mostCommonRaceIndex(blockgroup) {
   const racePops = blockgroup.properties.demographics.slice(2, 8);
   let maxIndex = 0;
   let maxPop = 0;
@@ -101,18 +106,67 @@ function calcFeatureStyle(blockgroup) {
     }
   }
 
+  return maxIndex;
+}
+
+function calcFeatureStyle(blockgroup) {
+  // const totalPop = blockgroup.properties.demographics[0];
+  // const allTotalPops = joinedData.features.map((f) => parseInt(f.properties.demographics[0]));
+  // const maxPop = Math.max(...allTotalPops);
+
+  const maxIndex = mostCommonRaceIndex(blockgroup);
+
   return {
     // fillOpacity: totalPop * 1.0 / maxPop,
     fillOpacity: 0.8,
-    color: colors[maxIndex],
+    color: raceColors[maxIndex],
     weight: 1,
   };
+}
+
+function calcFeatureTooltip(layer) {
+  const blockgroup = layer.feature;
+  const maxIndex = mostCommonRaceIndex(blockgroup);
+  return `Most common race is ${raceLabels[maxIndex]}`;
 }
 
 const dataLayer = L.geoJSON(joinedData, {
   style: calcFeatureStyle,
 });
+dataLayer.bindTooltip(calcFeatureTooltip);
 dataLayer.addTo(map);
+
+const legend = L.control({position: 'bottomright'});
+
+legend.onAdd = (map) => {
+  const legendDiv = document.createElement('div');
+  legendDiv.classList.add('legend');
+
+  legendDiv.innerHTML = '<h2>Racial Categories</h2>';
+  let ulHTML = '<ul class="legend-entries">';
+  for (const [index, label] of raceLabels.entries()) {
+    const color = raceColors[index];
+    const liHTML = `
+      <li class="legend-entry">
+        <span class="legend-color" style="background-color: ${color};"></span>
+        <span class="legend-label">${label.replace(/ /g, '&nbsp;')}</span>
+      </li>
+    `;
+    ulHTML += liHTML;
+  }
+  ulHTML += '</ul>';
+  legendDiv.innerHTML += ulHTML;
+  legendDiv.innerHTML += `
+    <p class="legend-description">
+      A census block group is colored according to the most common
+      racial classification within that block group.
+    </p>
+  `;
+
+  return legendDiv;
+};
+
+legend.addTo(map);
 
 window.map = map;
 window.geoData = geoData;
