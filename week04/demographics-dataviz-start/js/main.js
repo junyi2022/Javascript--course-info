@@ -73,15 +73,18 @@ const joinedData = {
 };
 window.joinedData = joinedData;
 
-function calcFeatureStyle(blockgroup) {
-//   const geoid = blockgroup.properties['GEOID'];
-//   const row = dmgData[geoid];
-  const totalPop = blockgroup.properties.demographics[0];
-  const colors = d3.schemeCategory10; // array of color
-// comments below is to show how to display population without race considerations
-//   const allTotalPops = joinedData.features.map((f) => parseInt(f.properties.demographics[0])); // parseInt is to change string to integers
-//   const maxPop = Math.max(...allTotalPops);
+const raceLabels = [
+  'white',
+  'Black or African American',
+  'American Indian and Alaska Native',
+  'Asian',
+  'Native Hawaiian and Other Pacific Islander',
+  'Some Other Race',
+  'Two or More Races',
+];
+const raceColors = d3.schemeCategory10; // array of color
 
+function mostCommonRaceIndex(blockgroup) {
   const racePops = blockgroup.properties.demographics.slice(2, 8);
   let maxIndex = 0;
   let maxPop = 0;
@@ -91,17 +94,76 @@ function calcFeatureStyle(blockgroup) {
       maxIndex = i;
     }
   }
+  return maxIndex;
+}
+
+function calcFeatureStyle(blockgroup) {
+//   const geoid = blockgroup.properties['GEOID'];
+//   const row = dmgData[geoid];
+  // const totalPop = blockgroup.properties.demographics[0];
+
+  // comments below is to show how to display population without race considerations
+  // const allTotalPops = joinedData.features.map((f) => parseInt(f.properties.demographics[0])); // parseInt is to change string to integers
+  // const maxPop = Math.max(...allTotalPops);
+  const maxIndex = mostCommonRaceIndex(blockgroup);
+
   return {
     // fillOpacity: totalPop * 1.0 / maxPop,
     fillOpacity: 0.8,
-    color: colors[maxIndex],
+    color: raceColors[maxIndex],
     weight: 1,
   };
 }
+
+function calFeatureTooltip(layer) {
+  const blockgroup = layer.feature;
+
+  const maxIndex = mostCommonRaceIndex(blockgroup);
+
+  return `Most common race is ${raceLabels[maxIndex]}`;
+}
+
 const dataLayer = L.geoJSON(joinedData, { // create geojason layer using the data we read
   style: calcFeatureStyle, // change the style of data, e.g. style:{color:'red'}
 });
+dataLayer.bindTooltip(calFeatureTooltip);
 dataLayer.addTo(map);
+
+// legend part
+const legend = L.control({position: 'bottomright'});
+
+legend.onAdd = (map) => {
+  const legendDiv = document.createElement('div'); // abstract html div tag
+  legendDiv.classList.add('legend'); // div class
+
+  legendDiv.innerHTML = '<h2>Racial Categories</h2>'; // add html content
+  let ulHTML = '<ul class="legend-entries">';
+  for (const [index, label] of raceLabels.entries()) { // .entries gives both key and value
+    const color = raceColors[index];
+    const liHTML = `
+      <li class="legend-entry">
+        <span class="legend-color" style="background-color: ${color};"></span>
+        <span class="legend-label">${label.replace(/ /g, '&nbsp;')}</span>
+      </li>
+      `; // {/ /g} means globally within the string, find each one of the spaces
+      // '&nbsp;' is HTML entity (start with & end with;), which is special characters that you can insert in HTML
+      // restrict interface from breaking
+    ulHTML += liHTML;
+  }
+  ulHTML += `</ul>`;
+  legendDiv.innerHTML += ulHTML;
+  legendDiv.innerHTML += `
+    <p class="legend-description">
+      A census block group is colored according to the most common racial classification within that block group.
+    </p>
+  `;
+
+  return legendDiv; // return html div
+};
+
+legend.addTo(map); // callback function will be called when legend add to map
+
+// legend part END
 
 window.map = map;
 window.geoData = geoData;
