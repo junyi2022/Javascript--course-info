@@ -291,10 +291,10 @@ function initIssueReporter(map, trailsLayer, issuesLayer, issuesCollection) {
   function rememberIssueReportFormData() {
     const issueData = getIssueReportFormData();
     window.localStorage.setItem('issueReportFormData', JSON.stringify(issueData));
-  }
+  } // can only store string, so use JSON.stringify
 
   function recallIssueReportFormData() {
-    const issueData = JSON.parse(window.localStorage.getItem('issueReportFormData'));
+    const issueData = JSON.parse(window.localStorage.getItem('issueReportFormData')); // recall the stored objects
     if (issueData) {
       issueCategorySelect.value = issueData.properties.category;
       issueDatetime.value = issueData.properties.encountered_at;

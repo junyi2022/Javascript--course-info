@@ -2,6 +2,7 @@ import { initIssueReporter } from './issue_reporter.js';
 
 // Import the functions you need from the SDKs you need
 // https://firebase.google.com/docs/web/learn-more#available-libraries
+// initialize firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js';
 import { getFirestore, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js';
 
@@ -10,6 +11,7 @@ import { getFirestore, getDocs, collection } from 'https://www.gstatic.com/fireb
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// specific to your project
 const firebaseConfig = {
   apiKey: 'AIzaSyBogSi6Saxt3ebZqIV5XPsuwmHiAoJpFUM',
   authDomain: 'musa-344004.firebaseapp.com',
@@ -53,7 +55,7 @@ async function loadTrails() {
 
 async function loadIssues() {
   const issuesQuery = await getDocs(issuesCollection);
-  const issues = issuesQuery.docs.map((doc) => doc.data());
+  const issues = issuesQuery.docs.map((doc) => doc.data()); // .docs is the attribute on the query object
 
   const data = {
     type: 'FeatureCollection',

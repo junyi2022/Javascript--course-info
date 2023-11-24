@@ -26,7 +26,7 @@ function initMap() {
 
   let currentLocation = null;
 
-  navigator.geolocation.watchPosition(
+  navigator.geolocation.watchPosition( // take two callbacks, success and error
       (pos) => {
         map.currentLocationLayer.clearLayers();
 
@@ -36,7 +36,7 @@ function initMap() {
         map.currentLocationLayer.addLayer(currentLocationMarker);
         map.panTo(currentLocation);
       },
-      (err) => {
+      (err) => { // need this to handle failled to get the location situation
         if (err.code === err.PERMISSION_DENIED) {
           alert('Sorry, I can\'t give you directions if you don\'t give me your location');
         } else if (err.code === err.POSITION_UNAVAILABLE) {
@@ -63,7 +63,7 @@ function initMap() {
     try {
       resp = await fetch(url);
 
-      if (resp.status !== 200) {
+      if (resp.status !== 200) { // need this part because this situation does not count in thee error phase
         throw new Error('Something exceptional happened.');
       }
 
