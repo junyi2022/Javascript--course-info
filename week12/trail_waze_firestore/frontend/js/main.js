@@ -3,7 +3,7 @@ import { initIssueReporter } from './issue_reporter.js';
 // Import the functions you need from the SDKs you need
 // https://firebase.google.com/docs/web/learn-more#available-libraries
 // initialize firebase
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js'; // initialize your application as a firebase application
 import { getFirestore, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js';
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -46,16 +46,18 @@ async function loadTrails() {
     },
   });
   trailsLayer.bindTooltip(
-    (l) => l.feature.properties['TRAIL_NAME'],
-    { sticky: true },
+      (l) => l.feature.properties['TRAIL_NAME'],
+      { sticky: true },
   );
   trailsLayer.addTo(map);
   return trailsLayer;
 }
 
 async function loadIssues() {
-  const issuesQuery = await getDocs(issuesCollection);
-  const issues = issuesQuery.docs.map((doc) => doc.data()); // .docs is the attribute on the query object
+  const issuesQuery = await getDocs(issuesCollection); // load the document that so far has been collected in your firestore database. Give you a query object with an attribute called docs
+  const issues = issuesQuery.docs.map((doc) => doc.data()); // .docs is the attribute on the query object. doc.data() give you the actual thing that was stored in firebase instead of the reference of things
+
+  // doc.id can get the random number/id of the documentation
 
   const data = {
     type: 'FeatureCollection',

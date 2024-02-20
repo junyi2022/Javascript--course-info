@@ -227,8 +227,8 @@ function initIssueReporter(map, trailsLayer, issuesLayer, issuesCollection) {
       latlng.lat,
     ]);
     const snappedPoint = turf.nearestPointOnLine(
-      issueReportSelectedLayer.feature,
-      clickedPoint,
+        issueReportSelectedLayer.feature,
+        clickedPoint,
     );
 
     reportMarker = L.marker([                      // (3)
@@ -266,11 +266,11 @@ function initIssueReporter(map, trailsLayer, issuesLayer, issuesCollection) {
   function getIssueReportFormData() {
     // Compile the form data into a GeoJSON feature object (`issueData`) with a
     // `type`, `geometry`, and `properties`.
-    const trailFeature = issueReportSelectedLayer.feature;
-    const issueLatLng = reportMarker ? reportMarker.getLatLng() : null;
-    const issueEncounteredAt = issueDatetime.value ? (new Date(issueDatetime.value)).toISOString() : '';
+    const trailFeature = issueReportSelectedLayer.feature; // leaflet layer representing the specific trail that you selected
+    const issueLatLng = reportMarker ? reportMarker.getLatLng() : null; // leaflet marker representing the specific point along the trail that you selected
+    const issueEncounteredAt = issueDatetime.value ? (new Date(issueDatetime.value)).toISOString() : ''; // all other different input that you have on page
 
-    const issueData = {
+    const issueData = { // convert the above things to a geoJSON feature object
       type: 'Feature',
       geometry: issueLatLng ? {
         type: 'Point',
@@ -341,7 +341,7 @@ function initIssueReporter(map, trailsLayer, issuesLayer, issuesCollection) {
   // -----------------
 
   function maintainMapCenter(wrapped) {
-    return function (...args) {
+    return function(...args) {
       const mapCenter = map.getCenter();
       // eslint-disable-next-line no-invalid-this
       const result = wrapped.apply(this, args);

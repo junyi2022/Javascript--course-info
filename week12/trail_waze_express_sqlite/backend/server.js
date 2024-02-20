@@ -29,7 +29,7 @@ if (process.env.DATABASE_URL) {
         ssl: { rejectUnauthorized: false }
     }
   };
-} else {
+} else { // set up connection to a database using a package called sqlite, can also connect to postgres
   knexOptions = {
     client: 'better-sqlite3',
     connection: {
